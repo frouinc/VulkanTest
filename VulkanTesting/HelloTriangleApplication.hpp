@@ -24,8 +24,14 @@
 #include <algorithm>
 #include <fstream>
 
+// SLEEP
+#include <chrono>
+#include <thread>
+
 const int WIDTH = 800;
 const int HEIGHT = 600;
+
+const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -75,6 +81,19 @@ private:
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
 	std::vector<VkImageView> swapChainImageViews;
+	std::vector<VkFramebuffer> swapChainFramebuffers;
+	
+	VkRenderPass renderPass;
+	VkPipelineLayout pipelineLayout;
+	VkPipeline graphicsPipeline;
+	
+	VkCommandPool commandPool;
+	std::vector<VkCommandBuffer> commandBuffers;
+
+	std::vector<VkSemaphore> imageAvailableSemaphores;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
+	std::vector<VkFence> inFlightFences;
+	size_t currentFrame = 0;
 	
 public:
 	void run() {
@@ -87,7 +106,7 @@ public:
 private:
 	void initWindow();
 
-	void initVulkan();	
+	void initVulkan();
 	
 	void mainLoop();
 	
@@ -103,7 +122,19 @@ private:
 	
 	void createImageViews();
 	
+	void createRenderPass();
+	
 	void createGraphicsPipeline();
+	
+	void createFrameBuffers();
+	
+	void createCommandPool();
+	
+	void createCommandBuffers();
+	
+	void createSyncObjects();
+	
+	void drawFrame();
 	
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 	
